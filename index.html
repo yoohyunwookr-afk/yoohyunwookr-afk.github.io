@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudden Attack MENA - هجوم مفاجئ- </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0; 
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('SuddenAttack.jpg') center/cover no-repeat;
+            filter: brightness(0.25) blur(3px) grayscale(0.3);
+        }
+
+        .background-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(30, 30, 40, 0.85) 0%, 
+                rgba(20, 20, 30, 0.9) 50%, 
+                rgba(15, 15, 25, 0.95) 100%
+            );
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(25, 25, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(100, 100, 120, 0.3);
+            padding: 15px 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-decoration: none;
+            letter-spacing: 1px;
+            text-shadow: 0 0 20px rgba(156, 163, 175, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-logo:hover {
+            color: #d1d5db;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .navbar-menu {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+        }
+
+        .navbar-menu a {
+            color: rgba(200, 200, 210, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .navbar-menu a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #9ca3af;
+            transition: width 0.3s ease;
+        }
+
+        .navbar-menu a:hover {
+            color: #d1d5db;
+        }
+
+        .navbar-menu a:hover::after {
+            width: 100%;
+        }
+
+        .discord-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #5865f2;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .discord-nav-btn:hover {
+            background: #4752c4;
+            transform: translateY(-2px);
+        }
+
+        .discord-nav-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        .release-notification {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.95) 0%, rgba(245, 158, 11, 0.95) 100%);
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 20px 25px;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(251, 191, 36, 0.4);
+            z-index: 10000;
+            transform: translateX(-500px);
+            opacity: 0;
+            transition: all 0.4s ease;
+        }
+
+        .release-notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .notification-icon {
+            width: 35px;
+            height: 35px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .notification-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .notification-body {
+            color: #1a1a1a;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .notification-date {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            display: block;
+            margin-top: 8px;
+        }
+
+        .notification-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #1a1a1a;
+            font-size: 24px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 100px 40px 60px;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .logo {
+            width: 320px;
+            max-width: 90%;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 10px 30px rgba(100, 100, 120, 0.4));
+        }
+
+        .hero-title {
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #9ca3af;
+            text-shadow: 0 0 20px rgba(156, 163, 175, 0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 15px;
+            color: rgba(200, 200, 210, 0.7);
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        .download-icon-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(75, 85, 99, 0.4);
+            cursor: pointer;
+        }
+
+        .download-icon-btn:hover {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(107, 114, 128, 0.6);
+        }
+
+        .download-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: rgba(30, 30, 40, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(100, 100, 120, 0.3);
+            border-radius: 14px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(120, 120, 140, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 18px;
+            color: #9ca3af;
+        }
+
+        .info-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-list li {
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(100, 100, 120, 0.2);
+            color: rgba(200, 200, 210, 0.8);
+            font-size: 13px;
+        }
+
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+
+        .requirements-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .requirement-box {
+            background: rgba(40, 40, 50, 0.6);
+            border: 1px solid rgba(100, 100, 120, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .requirement-box:hover {
+            border-color: rgba(120, 120, 140, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .requirement-box h4 {
+            color: #9ca3af;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .requirement-box a {
+            display: inline-block;
+            background: rgba(107, 114, 128, 0.3);
+            color: #9ca3af;
+            padding: 7px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .requirement-box a:hover {
+            background: rgba(107, 114, 128, 0.5);
+            color: #d1d5db;
+        }
+
+        @media (max-width: 968px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .navbar-right {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .navbar-menu {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .hero-title {
+                font-size: 22px;
+            }
+
+            .logo {
+                width: 280px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .requirements-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .release-notification {
+                left: 10px;
+                right: 10px;
+                max-width: calc(100% - 20px);
+            }
+        }
+    </style>
+    <script>
+        function showReleaseNotification() {
+            const notification = document.getElementById('releaseNotification');
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                hideNotification();
+            }, 8000);
+        }
+
+        function hideNotification() {
+            const notification = document.getElementById('releaseNotification');
+            notification.classList.remove('show');
+        }
+    </script>
+</head>
+<body>
+
+<div class="background-container">
+    <div class="background-image"></div>
+    <div class="background-overlay"></div>
+</div>
+
+<div class="release-notification" id="releaseNotification">
+    <button class="notification-close" onclick="hideNotification()">&times;</button>
+    <div class="notification-header">
+       
+        <div class="notification-title">リリース予定</div>
+    </div>
+    <div class="notification-body">
+        ゲームはまだリリースされていません。<br>
+        🚧現在、リリース日が遅延しています。
+        <span class="notification-date">2025年10月23日~24日</span>
+    </div>
+</div>
+
+<nav class="navbar">
+    <div class="navbar-content">
+        <a href="#" class="navbar-logo">Sudden Attack MENA</a>
+        <div class="navbar-right">
+            <ul class="navbar-menu">
+                <li><a href="#home">الرئيسي</a></li>
+                <li><a href="#download">تنزيل</a></li>
+                <li><a href="https://stargames-suddenattack.blogspot.com/2025/11/getting-started-with-samena.html">STARGAMES</a></li>
+            </ul>
+   <!--         <a href="https://discord.gg/psEb2pCd5A" target="_blank" class="discord-nav-btn"> -->
+                <svg class="discord-nav-icon" viewBox="0 0 71 55" fill="currentColor">
+                    <path d="M60.1045 4.8978C55.5792 2.8214 50.7265 1.2916 45.6527 0.41542C45.5603 0.39851 45.468 0.440769 45.4204 0.525289C44.7963 1.6353 44.105 3.0834 43.6209 4.2216C38.1637 3.4046 32.7345 3.4046 27.3892 4.2216C26.905 3.0581 26.1886 1.6353 25.5617 0.525289C25.5141 0.443589 25.4218 0.40133 25.3294 0.41542C20.2584 1.2888 15.4057 2.8186 10.8776 4.8978C10.8384 4.9147 10.8048 4.9429 10.7825 4.9795C1.57795 18.7309 -0.943561 32.1443 0.293408 45.3914C0.299005 45.4562 0.335386 45.5182 0.385761 45.5576C6.45866 50.0174 12.3413 52.7249 18.1147 54.5195C18.2071 54.5477 18.305 54.5139 18.3638 54.4378C19.7295 52.5728 20.9469 50.6063 21.9907 48.5383C22.0523 48.4172 21.9935 48.2735 21.8676 48.2256C19.9366 47.4931 18.0979 46.6 16.3292 45.5858C16.1893 45.5041 16.1781 45.304 16.3068 45.2082C16.679 44.9293 17.0513 44.6391 17.4067 44.3461C17.471 44.2926 17.5606 44.2813 17.6362 44.3151C29.2558 49.6202 41.8354 49.6202 53.3179 44.3151C53.3935 44.2785 53.4831 44.2898 53.5502 44.3433C53.9057 44.6363 54.2779 44.9293 54.6529 45.2082C54.7816 45.304 54.7732 45.5041 54.6333 45.5858C52.8646 46.6197 51.0259 47.4931 49.0921 48.2228C48.9662 48.2707 48.9102 48.4172 48.9718 48.5383C50.038 50.6034 51.2554 52.5699 52.5959 54.435C52.6519 54.5139 52.7526 54.5477 52.845 54.5195C58.6464 52.7249 64.529 50.0174 70.6019 45.5576C70.6551 45.5182 70.6887 45.459 70.6943 45.3942C72.1747 30.0791 68.2147 16.7757 60.1968 4.9823C60.1772 4.9429 60.1437 4.9147 60.1045 4.8978ZM23.7259 37.3253C20.2276 37.3253 17.3451 34.1136 17.3451 30.1693C17.3451 26.225 20.1717 23.0133 23.7259 23.0133C27.308 23.0133 30.1626 26.2532 30.1066 30.1693C30.1066 34.1136 27.28 37.3253 23.7259 37.3253ZM47.3178 37.3253C43.8196 37.3253 40.9371 34.1136 40.9371 30.1693C40.9371 26.225 43.7636 23.0133 47.3178 23.0133C50.9 23.0133 53.7545 26.2532 53.6986 30.1693C53.6986 34.1136 50.9 37.3253 47.3178 37.3253Z"/>
+                </svg>
+                Discord
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <section class="hero-section" id="home">
+        <img src="sa_logo1.png" alt="Sudden Attack Logo" class="logo">
+        <h1 class="hero-title">Sudden Attack MENA</h1>
+        <h1 class="hero-title">من المقرر إطلاقه في عام 2026!</h1>		
+        <p class="hero-subtitle">
+            استمتع بتجربة لعب FPS كاملة<br>
+ <!--           قم بالتنزيل الآن وانضم إلى المعركة! -->
+        </p>
+		
+	
+<!--          <a href="" target="_blank" class="download-icon-btn" id="download">
+            <svg class="download-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            من المقرر إطلاقه في عام 2026
+        </a> -->
+    </section>
+
+    <div class="main-grid">
+        <div class="card">
+            <h3 class="card-title">متطلبات النظام</h3>
+            <ul class="info-list">
+                <li>Windows 7 / 10 / 11</li>
+                <li>Intel Pentium 4 & AMD منتج مكافئ</li>
+                <li>RAM 2GB هذا كل شيء.</li>
+                <li>DirectX 9.0c الرسومات المدعومة</li>
+                <li>10GB سعة التخزين</li>
+				<li>**Windows 11：TPM/SecureBootمطلوب</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3 class="card-title">البرامج المطلوبة</h3>
+            <div class="requirements-grid">
+                <div class="requirement-box">
+                    <h4>.NET Framework 4.0+</h4>
+                    <a href="https://dotnet.microsoft.com/download/dotnet-framework" target="_blank">تنزيل</a>
+                </div>
+                <div class="requirement-box">
+                    <h4>DirectX 9.0c</h4>
+                    <a href="https://www.microsoft.com/en-us/download/details.aspx?id=35" target="_blank">تنزيل</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>
+
+
+
+
+
+
